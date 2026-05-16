@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Local data (optional to ignore, but keeps image slim)
+data/*.csv
+!data/cleaned_water_potability.csv
+
+# Docker/Logs
+.dockerignore
+Dockerfile
+*.log
+
+# Git
+.git/
+.gitignore
