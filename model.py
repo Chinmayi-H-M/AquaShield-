@@ -4,6 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from imblearn.over_sampling import SMOTE
+import joblib
+import os
 
 # Load dataset
 df = pd.read_csv("data/cleaned_water_potability.csv")
@@ -41,6 +43,12 @@ print(classification_report(y_test, y_pred))
 print("\n" + "="*50)
 print("CRITICAL ANALYSIS: WHY 99% IS IMPOSSIBLE HERE")
 print("="*50)
+
+# Save the model
+print("\nSaving model...")
+os.makedirs("models", exist_ok=True)
+joblib.dump(model, "models/water_model.pkl")
+print("Model saved to models/water_model.pkl")
 print("1. DATA NOISE: In this dataset, there are water samples with identical chemical readings ")
 print("   where one is potable and the other is NOT. A model cannot distinguish them.")
 print("2. MISSING INFO: Potability relies on bacterial levels (E. coli, etc.), which are NOT in this CSV.")
