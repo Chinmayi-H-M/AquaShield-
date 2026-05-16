@@ -1,5 +1,7 @@
+/** @jsxImportSource react */
 'use client';
 
+import React from 'react';
 import {
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -118,7 +120,7 @@ export default function DashboardPage() {
                         { label: 'Safe Samples', value: safe.toLocaleString(), color: 'var(--safe)', sub: `${Math.round((safe / total) * 100)}% of total` },
                         { label: 'Unsafe Samples', value: unsafe.toLocaleString(), color: 'var(--unsafe)', sub: `${Math.round((unsafe / total) * 100)}% of total` },
                         { label: 'Model Accuracy', value: '92.4%', color: 'var(--aqua-bright)', sub: 'On test set' },
-                    ].map((s) => (
+                    ].map((s: { label: string, value: string, color: string, sub: string }) => (
                         <div key={s.label} className="glass rounded-2xl p-5 metric-card">
                             <div className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-2">
                                 {s.label}

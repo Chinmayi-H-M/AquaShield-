@@ -77,11 +77,30 @@ class ModelHandler:
         else:
             risk_level = "Critical"
             
+        # Get feature importances as a proxy for SHAP
+        importances = self.model.feature_importances_
+        feature_names = df_features.columns.tolist()
+        feature_values = df_features.values[0]
+        
+        # Zip and sort by importance
+        top_factors_raw = sorted(
+            zip(feature_names, importances, feature_values),
+            key=lambda x: x[1],
+            reverse=True
+        )
+        
+        # Limit to top 10 and format
+        top_factors = [
+            {"feature": f, "importance": float(i), "value": float(v)} 
+            for f, i, v in top_factors_raw[:10]
+        ]
+            
         return {
             "prediction": prediction,
             "confidence": confidence,
             "risk_score": risk_score,
-            "risk_level": risk_level
+            "risk_level": risk_level,
+            "top_factors": top_factors
         }
 
 # Singleton instance

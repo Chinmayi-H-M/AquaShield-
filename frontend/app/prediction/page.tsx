@@ -1,6 +1,7 @@
+/** @jsxImportSource react */
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, XCircle, AlertTriangle, FlaskConical, ArrowLeft, BarChart2 } from 'lucide-react';
@@ -139,7 +140,7 @@ export default function PredictionPage() {
                         {[
                             { label: 'Confidence', value: `${confidence}%` },
                             { label: 'Risk Score', value: `${riskScore}%` },
-                        ].map(item => (
+                        ].map((item: { label: string, value: string }) => (
                             <div key={item.label} style={{
                                 background: `${statusColor}08`,
                                 border: `1px solid ${statusColor}25`,
@@ -156,24 +157,73 @@ export default function PredictionPage() {
                         ))}
                     </div>
 
-                    {/* Risk bar */}
-                    <div style={{ maxWidth: 420, margin: '0 auto' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
-                            <span>Risk Score</span>
-                            <span style={{ color: statusColor }}>
-                                {riskScore}% — {riskScore < 30 ? 'Low Risk' : riskScore < 60 ? 'Moderate Risk' : 'High Risk'}
-                            </span>
+                    {/* Risk bar (Safety Spectrum) */}
+                    <div style={{ maxWidth: 460, margin: '0 auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
+                            <div style={{ textAlign: 'left' }}>
+                                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Current Status</div>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: statusColor }}>
+                                    {riskScore < 30 ? 'Safe / Low Risk' : riskScore < 60 ? 'Caution / Moderate' : 'Unsafe / High Risk'}
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Risk Score</div>
+                                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700, color: statusColor }}>{riskScore}%</div>
+                            </div>
                         </div>
-                        <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
+
+                        {/* Spectrum Bar */}
+                        <div style={{ position: 'relative', height: 12, marginBottom: 24 }}>
+                            {/* Track Background (Gradient) */}
                             <div style={{
-                                height: '100%', borderRadius: 4,
-                                width: revealed ? `${riskScore}%` : '0%',
-                                background: `linear-gradient(to right, var(--safe), ${riskScore > 60 ? 'var(--unsafe)' : riskScore > 40 ? 'var(--warn)' : 'var(--safe)'})`,
-                                transition: 'width 1s cubic-bezier(0.4,0,0.2,1)',
+                                position: 'absolute', inset: 0,
+                                background: 'linear-gradient(to right, var(--safe) 0%, var(--warn) 50%, var(--unsafe) 100%)',
+                                borderRadius: 6,
+                                opacity: 0.2,
                             }} />
+                            
+                            {/* The colored track itself (Optional: could also just use the background) */}
+                            <div style={{
+                                position: 'absolute', inset: 0,
+                                background: 'linear-gradient(to right, var(--safe) 0%, var(--warn) 50%, var(--unsafe) 100%)',
+                                borderRadius: 6,
+                                clipPath: `inset(0 ${100 - (revealed ? riskScore : 0)}% 0 0)`,
+                                transition: 'clip-path 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                            }} />
+
+                            {/* Indicator / Pointer */}
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: `${revealed ? riskScore : 0}%`,
+                                transform: 'translate(-50%, -50%)',
+                                width: 20,
+                                height: 20,
+                                background: '#fff',
+                                border: `3px solid ${statusColor}`,
+                                borderRadius: '50%',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                zIndex: 10,
+                                transition: 'left 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                            }}>
+                                <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', width: 2, height: 8, background: statusColor }} />
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9ca3af', marginTop: 4 }}>
-                            <span>0% Safe</span><span>100% Unsafe</span>
+
+                        {/* Legend Labels */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--safe)' }} />
+                                SAFE
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--warn)' }} />
+                                CAUTION
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--unsafe)' }} />
+                                UNSAFE
+                            </div>
                         </div>
                     </div>
                 </div>

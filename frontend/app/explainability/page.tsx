@@ -1,6 +1,7 @@
+/** @jsxImportSource react */
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -40,7 +41,9 @@ export default function ExplainabilityPage() {
         const r = getLastResult();
         if (!r) { router.push('/test'); return; }
         setResult(r);
-        setSelected(r.shapValues[0].feature);
+        if (r.shapValues && r.shapValues.length > 0) {
+            setSelected(r.shapValues[0].feature);
+        }
     }, [router]);
 
     if (!result) return null;
@@ -125,7 +128,7 @@ export default function ExplainabilityPage() {
                                     tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
                                     axisLine={false}
                                     tickLine={false}
-                                    tickFormatter={v => `${(v * 100).toFixed(0)}%`}
+                                    tickFormatter={(v: number) => `${(v * 100).toFixed(0)}%`}
                                 />
                                 <YAxis
                                     type="category"
@@ -136,7 +139,7 @@ export default function ExplainabilityPage() {
                                 />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Bar dataKey="value" radius={[0, 4, 4, 0]} onClick={(d: any) => setSelected(d.name ?? null)}>
-                                    {chartData.map(entry => (
+                                    {chartData.map((entry: { name: string, value: number }) => (
                                         <Cell
                                             key={entry.name}
                                             fill={entry.name === selected ? 'var(--aqua-bright)' : 'var(--aqua)'}
@@ -250,7 +253,7 @@ export default function ExplainabilityPage() {
                         The main factors influencing this prediction are the current parameter values relative to WHO guidelines.
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        {shapValues.map(({ feature, importance, value }) => {
+                        {shapValues.map(({ feature, importance, value }: { feature: string, importance: number, value: number | string }) => {
                             const whoLimit = WHO_LIMITS[feature];
                             const numVal = typeof value === 'number' ? value : parseFloat(String(value));
                             const isOver = whoLimit && numVal > whoLimit.max;
