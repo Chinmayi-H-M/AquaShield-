@@ -50,6 +50,25 @@ class ModelHandler:
         return df_final
 
     def predict(self, input_data: WaterInput):
+        data = input_data.dict()
+        
+        # Extrapolation Guard: Random Forests cannot extrapolate outside training bounds.
+        # Hardcode physical bounds to prevent extreme unsafe values from returning "Safe".
+        if (data['ph'] < 0 or data['ph'] > 14 or 
+            data['Hardness'] > 1500 or data['Solids'] > 150000 or 
+            data['Conductivity'] > 5000 or data['Sulfate'] > 2000 or
+            data['Chloramines'] > 30 or data['Trihalomethanes'] > 300 or
+            data['Turbidity'] > 25):
+            return {
+                "prediction": 0,
+                "confidence": 99.9,
+                "risk_score": 100.0,
+                "risk_level": "Critical",
+                "top_factors": [
+                    {"feature": "Out of Bounds (Toxic/Unreal)", "importance": 1.0, "value": 0.0}
+                ]
+            }
+
         # Preprocess
         df_features = self.preprocess(input_data)
         

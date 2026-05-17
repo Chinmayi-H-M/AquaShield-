@@ -36,10 +36,31 @@ export const defaultParams: WaterParams = {
 
 // Call FastAPI backend for real prediction
 export async function runPrediction(params: WaterParams): Promise<PredictionResult> {
+    // 1. HARD PRE-CHECK FOR TOXIC/EXTREME VALUES
+    // Prevents Random Forest extrapolation failures and catches obvious dangers immediately.
+    // E.g. pH of 3.5 or 15 is physically dangerous, regardless of what the ML model thinks.
+    if (params.ph < 5.0 || params.ph > 9.5 || 
+        params.hardness > 1000 || params.solids > 60000 || 
+        params.sulfate > 1000 || params.chloramines > 15 ||
+        params.trihalomethanes > 200 || params.turbidity > 15) {
+        
+        let toxicFeature = "Extreme / Toxic Values";
+        if (params.ph < 5.0) toxicFeature = "Highly Acidic (Dangerous pH)";
+        else if (params.ph > 9.5) toxicFeature = "Highly Alkaline (Dangerous pH)";
+        else if (params.solids > 60000) toxicFeature = "Extreme Dissolved Solids";
+        
+        return {
+            isSafe: false,
+            confidence: 99,
+            riskScore: 100,
+            params,
+            shapValues: [{ feature: toxicFeature, value: 0, importance: 1.0 }]
+        };
+    }
+
     // Dynamically detect API URL: Localhost takes priority if we're in development, 
     // otherwise use environment variable or production fallback.
     let API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aquashield-api.onrender.com';
-    
     
     try {
         const response = await fetch(`${API_URL}/predict`, {
@@ -102,15 +123,15 @@ export async function runPrediction(params: WaterParams): Promise<PredictionResu
 // Rename old function to simulatePrediction as a fallback
 function simulatePrediction(params: WaterParams): PredictionResult {
     const scores = {
-        ph: Math.abs(params.ph - 7.0) > 1.5 ? 0.3 : Math.abs(params.ph - 7.0) > 0.5 ? 0.1 : 0,
-        hardness: params.hardness > 300 ? 0.15 : 0,
-        solids: params.solids > 50000 ? 0.2 : params.solids > 30000 ? 0.1 : 0,
-        chloramines: params.chloramines > 4 ? 0.2 : 0,
-        sulfate: params.sulfate > 400 ? 0.15 : 0,
-        conductivity: params.conductivity > 800 ? 0.1 : 0,
-        organicCarbon: params.organicCarbon > 15 ? 0.15 : 0,
-        trihalomethanes: params.trihalomethanes > 80 ? 0.25 : params.trihalomethanes > 60 ? 0.1 : 0,
-        turbidity: params.turbidity > 4 ? 0.2 : params.turbidity > 2 ? 0.05 : 0,
+        ph: params.ph < 6 || params.ph > 9 ? 0.8 : Math.abs(params.ph - 7.0) > 1.0 ? 0.3 : 0,
+        hardness: params.hardness > 400 ? 0.3 : params.hardness > 300 ? 0.15 : 0,
+        solids: params.solids > 50000 ? 0.5 : params.solids > 30000 ? 0.2 : 0,
+        chloramines: params.chloramines > 6 ? 0.4 : params.chloramines > 4 ? 0.2 : 0,
+        sulfate: params.sulfate > 600 ? 0.4 : params.sulfate > 400 ? 0.15 : 0,
+        conductivity: params.conductivity > 1000 ? 0.3 : params.conductivity > 800 ? 0.1 : 0,
+        organicCarbon: params.organicCarbon > 20 ? 0.4 : params.organicCarbon > 15 ? 0.15 : 0,
+        trihalomethanes: params.trihalomethanes > 100 ? 0.5 : params.trihalomethanes > 80 ? 0.25 : 0,
+        turbidity: params.turbidity > 6 ? 0.4 : params.turbidity > 4 ? 0.2 : 0,
     };
 
     const totalRisk = Object.values(scores).reduce((a, b) => a + b, 0);
