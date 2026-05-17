@@ -1,5 +1,7 @@
+/** @jsxImportSource react */
 'use client';
 
+import React from 'react';
 import {
     LineChart, Line, BarChart, Bar,
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,

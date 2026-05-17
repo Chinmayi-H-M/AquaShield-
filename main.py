@@ -71,7 +71,8 @@ async def predict(data: WaterInput):
             "confidence": round(result["confidence"], 2),
             "risk_score": round(result["risk_score"], 2),
             "risk_level": result["risk_level"],
-            "message": message
+            "message": message,
+            "top_factors": result.get("top_factors", [])
         }
         
     except Exception as e:

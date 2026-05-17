@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Dict
 
 class WaterInput(BaseModel):
     """
@@ -40,3 +40,4 @@ class PredictionResponse(BaseModel):
     risk_score: float = Field(..., description="Risk score (0-100)")
     risk_level: str = Field(..., description="Risk category")
     message: str = Field(..., description="Detailed message for the user")
+    top_factors: List[Dict] = Field(default_factory=list, description="Top contributing factors")

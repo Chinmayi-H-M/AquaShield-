@@ -1,5 +1,6 @@
+/** @jsxImportSource react */
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { defaultParams, runPrediction, setLastResult, type WaterParams } from '@/lib/prediction';
 
@@ -36,12 +37,14 @@ export default function TestPage() {
   const [params, setParams] = useState<WaterParams>({ ...defaultParams });
   const [loading, setLoading] = useState(false);
 
-  const set = (key: keyof WaterParams, v: number) => setParams(p => ({ ...p, [key]: v }));
+  const set = (key: keyof WaterParams, v: number) => setParams((p: WaterParams) => ({ ...p, [key]: v }));
 
   const handlePredict = async () => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1500));
-    setLastResult(runPrediction(params));
+    // Simulate a bit of processing delay for UX
+    await new Promise(r => setTimeout(r, 1000));
+    const result = await runPrediction(params);
+    setLastResult(result);
     router.push('/prediction');
   };
 
@@ -138,7 +141,7 @@ export default function TestPage() {
                       max={p.max}
                       step={p.step}
                       value={val}
-                      onChange={e => set(p.key, parseFloat(e.target.value))}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => set(p.key, parseFloat(e.target.value))}
                       style={{ position: 'relative', zIndex: 2, background: 'transparent' }}
                     />
                   </div>

@@ -34,9 +34,70 @@ export const defaultParams: WaterParams = {
     turbidity: 2.5,
 };
 
-// Simulate ANN prediction
-export function runPrediction(params: WaterParams): PredictionResult {
-    // WHO guidelines and scoring
+// Call FastAPI backend for real prediction
+export async function runPrediction(params: WaterParams): Promise<PredictionResult> {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aquashield-api.onrender.com';
+    
+    try {
+        const response = await fetch(`${API_URL}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ph: params.ph,
+                Hardness: params.hardness,
+                Solids: params.solids,
+                Chloramines: params.chloramines,
+                Sulfate: params.sulfate,
+                Conductivity: params.conductivity,
+                Organic_carbon: params.organicCarbon,
+                Trihalomethanes: params.trihalomethanes,
+                Turbidity: params.turbidity
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Map backend feature names to frontend expected names
+        const featureMap: Record<string, string> = {
+            'ph': 'pH',
+            'Hardness': 'Hardness',
+            'Solids': 'Solids',
+            'Chloramines': 'Chloramines',
+            'Sulfate': 'Sulfate',
+            'Conductivity': 'Conductivity',
+            'Organic_carbon': 'Organic Carbon',
+            'Trihalomethanes': 'Trihalomethanes',
+            'Turbidity': 'Turbidity',
+            'Sulfate_Hardness_Ratio': 'Sulfate/Hardness Ratio',
+            'Organic_Chlorine_Ratio': 'Organic/Chlorine Ratio'
+        };
+
+        return {
+            isSafe: data.prediction === 1,
+            confidence: Math.round(data.confidence),
+            riskScore: Math.round(data.risk_score),
+            params,
+            shapValues: data.top_factors
+                .map((f: any) => ({
+                    feature: featureMap[f.feature] || f.feature,
+                    value: f.value,
+                    importance: f.importance
+                }))
+                .filter((f: any) => !f.feature.includes(' ')) // Filter out interaction features like 'ph Solids' for cleaner UI
+        };
+    } catch (error) {
+        console.error('Prediction API call failed:', error);
+        // Fallback to simulation if API is down (useful for demo)
+        return simulatePrediction(params);
+    }
+}
+
+// Rename old function to simulatePrediction as a fallback
+function simulatePrediction(params: WaterParams): PredictionResult {
     const scores = {
         ph: Math.abs(params.ph - 7.0) > 1.5 ? 0.3 : Math.abs(params.ph - 7.0) > 0.5 ? 0.1 : 0,
         hardness: params.hardness > 300 ? 0.15 : 0,
