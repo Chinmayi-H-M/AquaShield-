@@ -10,27 +10,27 @@ import {
 
 /* ── DATA ─────────────────────────────────────────────────────── */
 const modelMetrics = [
-    { metric: 'Accuracy', value: '92.4%', raw: 92.4 },
-    { metric: 'Precision', value: '91.1%', raw: 91.1 },
-    { metric: 'Recall', value: '93.7%', raw: 93.7 },
-    { metric: 'F1 Score', value: '92.4%', raw: 92.4 },
-    { metric: 'AUC-ROC', value: '0.967', raw: 96.7 },
+    { metric: 'Accuracy', value: '66.9%', raw: 66.9 },
+    { metric: 'Precision', value: '66.0%', raw: 66.0 },
+    { metric: 'Recall', value: '67.0%', raw: 67.0 },
+    { metric: 'F1 Score', value: '67.0%', raw: 67.0 },
+    { metric: 'AUC-ROC', value: '0.720', raw: 72.0 },
 ];
 
 const trainingHistory = [
-    { epoch: 1, trainLoss: 0.68, valLoss: 0.71, trainAcc: 56, valAcc: 54 },
-    { epoch: 5, trainLoss: 0.55, valLoss: 0.58, trainAcc: 72, valAcc: 69 },
-    { epoch: 10, trainLoss: 0.42, valLoss: 0.46, trainAcc: 82, valAcc: 79 },
-    { epoch: 20, trainLoss: 0.32, valLoss: 0.36, trainAcc: 87, valAcc: 84 },
-    { epoch: 30, trainLoss: 0.24, valLoss: 0.28, trainAcc: 90, valAcc: 87 },
-    { epoch: 40, trainLoss: 0.19, valLoss: 0.22, trainAcc: 92, valAcc: 90 },
-    { epoch: 50, trainLoss: 0.16, valLoss: 0.19, trainAcc: 93.5, valAcc: 92.4 },
+    { epoch: 10, trainLoss: 0.65, valLoss: 0.68, trainAcc: 62, valAcc: 58 },
+    { epoch: 50, trainLoss: 0.50, valLoss: 0.63, trainAcc: 75, valAcc: 62 },
+    { epoch: 100, trainLoss: 0.40, valLoss: 0.61, trainAcc: 85, valAcc: 64 },
+    { epoch: 200, trainLoss: 0.25, valLoss: 0.59, trainAcc: 95, valAcc: 65 },
+    { epoch: 500, trainLoss: 0.10, valLoss: 0.58, trainAcc: 99, valAcc: 66 },
+    { epoch: 800, trainLoss: 0.02, valLoss: 0.57, trainAcc: 100, valAcc: 66.5 },
+    { epoch: 1000, trainLoss: 0.00, valLoss: 0.57, trainAcc: 100, valAcc: 66.9 },
 ];
 
 const rocData = [
-    { fpr: 0, tpr: 0 }, { fpr: 0.02, tpr: 0.35 }, { fpr: 0.05, tpr: 0.65 },
-    { fpr: 0.08, tpr: 0.80 }, { fpr: 0.12, tpr: 0.88 }, { fpr: 0.18, tpr: 0.93 },
-    { fpr: 0.25, tpr: 0.96 }, { fpr: 0.35, tpr: 0.975 }, { fpr: 0.5, tpr: 0.985 },
+    { fpr: 0, tpr: 0 }, { fpr: 0.05, tpr: 0.15 }, { fpr: 0.15, tpr: 0.35 },
+    { fpr: 0.25, tpr: 0.50 }, { fpr: 0.35, tpr: 0.62 }, { fpr: 0.50, tpr: 0.75 },
+    { fpr: 0.65, tpr: 0.85 }, { fpr: 0.80, tpr: 0.92 }, { fpr: 0.90, tpr: 0.97 },
     { fpr: 1.0, tpr: 1.0 },
 ];
 
@@ -47,14 +47,14 @@ const featureImportance = [
 ];
 
 const sampleHistory = [
-    { month: 'Jan', safe: 82, unsafe: 45 },
-    { month: 'Feb', safe: 95, unsafe: 38 },
-    { month: 'Mar', safe: 76, unsafe: 52 },
-    { month: 'Apr', safe: 110, unsafe: 41 },
-    { month: 'May', safe: 98, unsafe: 35 },
-    { month: 'Jun', safe: 125, unsafe: 48 },
-    { month: 'Jul', safe: 88, unsafe: 55 },
-    { month: 'Aug', safe: 103, unsafe: 42 },
+    { month: 'Jan', safe: 150, unsafe: 240 },
+    { month: 'Feb', safe: 165, unsafe: 230 },
+    { month: 'Mar', safe: 145, unsafe: 260 },
+    { month: 'Apr', safe: 170, unsafe: 245 },
+    { month: 'May', safe: 155, unsafe: 255 },
+    { month: 'Jun', safe: 180, unsafe: 220 },
+    { month: 'Jul', safe: 160, unsafe: 270 },
+    { month: 'Aug', safe: 153, unsafe: 278 },
 ];
 
 /* ── DESIGN TOKENS (mirrors globals.css) ───────────────────────── */
@@ -112,7 +112,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 /* ── PAGE ───────────────────────────────────────────────────────── */
 export default function DashboardPage() {
-    const total = 1250, safe = 732, unsafe = 518;
+    const total = 3276, safe = 1278, unsafe = 1998;
 
     return (
         <div style={{
@@ -155,7 +155,7 @@ export default function DashboardPage() {
                         { label: 'Total Samples', value: total.toLocaleString(), color: C.aqua, sub: 'Water samples tested' },
                         { label: 'Safe Samples', value: safe.toLocaleString(), color: C.safe, sub: `${Math.round((safe / total) * 100)}% of total` },
                         { label: 'Unsafe Samples', value: unsafe.toLocaleString(), color: C.unsafe, sub: `${Math.round((unsafe / total) * 100)}% of total` },
-                        { label: 'Model Accuracy', value: '92.4%', color: C.aquaBright, sub: 'On test set' },
+                        { label: 'Model Accuracy', value: '66.9%', color: C.aquaBright, sub: 'On test set' },
                     ].map((s) => (
                         <div key={s.label} style={{
                             ...glassCard, padding: 22,
@@ -217,10 +217,10 @@ export default function DashboardPage() {
                         <div style={sectionTitle}>Confusion Matrix</div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                             {[
-                                { label: 'True Positive', value: 710, color: C.safe, bg: 'rgba(16,185,129,0.08)' },
-                                { label: 'False Positive', value: 22, color: C.unsafe, bg: 'rgba(239,68,68,0.08)' },
-                                { label: 'False Negative', value: 35, color: C.warn, bg: 'rgba(245,158,11,0.08)' },
-                                { label: 'True Negative', value: 483, color: C.aqua, bg: 'rgba(14,165,233,0.08)' },
+                                { label: 'True Positive', value: 134, color: C.safe, bg: 'rgba(16,185,129,0.08)' },
+                                { label: 'False Positive', value: 95, color: C.unsafe, bg: 'rgba(239,68,68,0.08)' },
+                                { label: 'False Negative', value: 122, color: C.warn, bg: 'rgba(245,158,11,0.08)' },
+                                { label: 'True Negative', value: 305, color: C.aqua, bg: 'rgba(14,165,233,0.08)' },
                             ].map(cell => (
                                 <div key={cell.label} style={{
                                     background: cell.bg, border: `1px solid ${cell.color}30`,
@@ -281,7 +281,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div style={glassCard}>
-                        <div style={sectionTitle}>ROC Curve <span style={{ fontSize: 12, color: C.textMuted, fontWeight: 400 }}>AUC = 0.967</span></div>
+                        <div style={sectionTitle}>ROC Curve <span style={{ fontSize: 12, color: C.textMuted, fontWeight: 400 }}>AUC = 0.720</span></div>
                         <ResponsiveContainer width="100%" height={240}>
                             <AreaChart data={rocData} margin={{ top: 4, right: 8, bottom: 4, left: -10 }}>
                                 <defs>
