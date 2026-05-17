@@ -100,21 +100,27 @@ export default function PredictionPage() {
                         marginBottom: 24,
                     }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor, display: 'inline-block' }} />
-                        PREDICTION RESULT
+                        AQUASHIELD ANALYSIS
                     </div>
 
-                    {/* Icon */}
-                    <div style={{
-                        width: 88, height: 88,
-                        borderRadius: '50%',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        margin: '0 auto 20px',
-                        background: `${statusColor}18`,
-                        border: `3px solid ${statusColor}`,
-                        transform: revealed ? 'scale(1)' : 'scale(0)',
-                        transition: 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)',
-                    }}>
-                        <StatusIcon size={42} style={{ color: statusColor }} />
+                    {/* Liquid Animation Container */}
+                    <div className="liquid-container" style={{ borderColor: `${statusColor}40` }}>
+                        <div 
+                            className="liquid" 
+                            style={{ 
+                                height: revealed ? `${100 - riskScore}%` : '0%',
+                                background: statusColor 
+                            }} 
+                        />
+                        <div style={{ 
+                            position: 'absolute', inset: 0, 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            zIndex: 10,
+                            transform: revealed ? 'scale(1)' : 'scale(0)',
+                            transition: 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.5s',
+                        }}>
+                            <StatusIcon size={48} style={{ color: isSafe ? '#fff' : riskScore > 60 ? '#fff' : statusColor }} />
+                        </div>
                     </div>
 
                     <h1 style={{
@@ -129,16 +135,16 @@ export default function PredictionPage() {
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 32, lineHeight: 1.6, maxWidth: 440, margin: '0 auto 32px' }}>
                         {isSafe
-                            ? 'Your water quality is within acceptable parameters for human consumption.'
+                            ? 'Your water quality is within acceptable parameters for human consumption according to WHO guidelines.'
                             : riskScore > 60
-                                ? 'This water sample exceeds safety thresholds and poses health risks.'
-                                : 'Some parameters are borderline. Further testing is recommended.'}
+                                ? 'This water sample exceeds safety thresholds and poses health risks. Immediate filtration or treatment required.'
+                                : 'Some parameters are borderline. While not strictly toxic, further professional testing is recommended.'}
                     </p>
 
                     {/* Confidence & Risk Score */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 320, margin: '0 auto 28px' }}>
                         {[
-                            { label: 'Confidence', value: `${confidence}%` },
+                            { label: 'Model Confidence', value: `${confidence}%` },
                             { label: 'Risk Score', value: `${riskScore}%` },
                         ].map((item: { label: string, value: string }) => (
                             <div key={item.label} style={{
@@ -182,7 +188,7 @@ export default function PredictionPage() {
                                 opacity: 0.2,
                             }} />
                             
-                            {/* The colored track itself (Optional: could also just use the background) */}
+                            {/* The colored track itself */}
                             <div style={{
                                 position: 'absolute', inset: 0,
                                 background: 'linear-gradient(to right, var(--safe) 0%, var(--warn) 50%, var(--unsafe) 100%)',
@@ -254,13 +260,13 @@ export default function PredictionPage() {
                 </div>
 
                 {/* Top factors */}
-                <div className="card" style={{ padding: '28px 32px', marginBottom: 28 }}>
+                <div className="card" style={{ padding: '28px 32px', marginBottom: 20 }}>
                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20 }}>
                         Top Contributing Factors
                     </h2>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {shapValues.slice(0, 5).map(({ feature, importance }, i) => {
-                            const pct = Math.min((importance / shapValues[0].importance) * 100, 100);
+                            const pct = Math.min((importance / (shapValues[0]?.importance || 1)) * 100, 100);
                             return (
                                 <div key={feature} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                                     <div style={{ width: 110, fontSize: 13, color: 'var(--text-secondary)', flexShrink: 0 }}>{feature}</div>
@@ -278,6 +284,26 @@ export default function PredictionPage() {
                                 </div>
                             );
                         })}
+                    </div>
+                </div>
+
+                {/* Model Insights */}
+                <div className="card" style={{ padding: '28px 32px', marginBottom: 28, background: 'linear-gradient(to bottom right, #fff, #f8fafc)' }}>
+                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
+                        Model Insights
+                    </h2>
+                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
+                        This prediction was generated using a <strong>Deep Artificial Neural Network (ANN)</strong> trained on over 3,000 water samples. The model evaluates complex non-linear relationships between chemical parameters to determine potability.
+                    </p>
+                    <div style={{ display: 'flex', gap: 20 }}>
+                        <div style={{ flex: 1, background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px' }}>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 700 }}>ARCHITECTURE</div>
+                            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>4-Layer Sequential MLP</div>
+                        </div>
+                        <div style={{ flex: 1, background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px' }}>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 700 }}>ENGINE</div>
+                            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>Scikit-Learn / MLPClassifier</div>
+                        </div>
                     </div>
                 </div>
 

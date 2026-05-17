@@ -3,7 +3,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
-  title: 'AquaSafe AI',
+  title: 'AquaShield',
   description: 'Water Quality Prediction System',
 };
 

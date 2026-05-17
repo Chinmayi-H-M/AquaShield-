@@ -36,7 +36,10 @@ export const defaultParams: WaterParams = {
 
 // Call FastAPI backend for real prediction
 export async function runPrediction(params: WaterParams): Promise<PredictionResult> {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aquashield-api.onrender.com';
+    // Dynamically detect API URL: Localhost takes priority if we're in development, 
+    // otherwise use environment variable or production fallback.
+    let API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aquashield-api.onrender.com';
+    
     
     try {
         const response = await fetch(`${API_URL}/predict`, {

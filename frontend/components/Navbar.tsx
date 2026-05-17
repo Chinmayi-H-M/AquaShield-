@@ -68,7 +68,7 @@ export default function Navbar() {
                             letterSpacing: '-0.3px',
                         }}
                     >
-                        AquaSafe AI
+                        AquaShield
                     </span>
                 </Link>
 
