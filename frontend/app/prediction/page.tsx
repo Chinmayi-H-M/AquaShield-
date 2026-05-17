@@ -293,16 +293,16 @@ export default function PredictionPage() {
                         Model Insights
                     </h2>
                     <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
-                        This prediction was generated using a <strong>Deep Artificial Neural Network (ANN)</strong> trained on over 3,000 water samples. The model evaluates complex non-linear relationships between chemical parameters to determine potability.
+                        This prediction was generated using a <strong>Random Forest Ensemble Model</strong> trained on over 3,000 water samples. The model evaluates complex non-linear relationships and thresholds across chemical parameters to determine potability.
                     </p>
                     <div style={{ display: 'flex', gap: 20 }}>
                         <div style={{ flex: 1, background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px' }}>
                             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 700 }}>ARCHITECTURE</div>
-                            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>4-Layer Sequential MLP</div>
+                            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>Random Forest (1000 Trees)</div>
                         </div>
                         <div style={{ flex: 1, background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px' }}>
                             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 700 }}>ENGINE</div>
-                            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>Scikit-Learn / MLPClassifier</div>
+                            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>Scikit-Learn / RandomForest</div>
                         </div>
                     </div>
                 </div>

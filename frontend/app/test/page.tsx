@@ -219,7 +219,7 @@ export default function TestPage() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
             Analyzing water quality…
           </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Running ANN classification model</div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Running Random Forest classification model</div>
         </div>
       )}
     </div>
