@@ -26,11 +26,6 @@ const PARAMS: Param[] = [
   { key: 'sulfate', label: 'Sulfate', unit: 'mg/L', min: 0, max: 1000, step: 1, who: '< 400' },
 ];
 
-function fmt(key: keyof WaterParams, v: number) {
-  if (key === 'solids') return v.toLocaleString();
-  if (['ph', 'turbidity', 'chloramines', 'organicCarbon', 'trihalomethanes'].includes(key)) return v.toFixed(1);
-  return String(v);
-}
 
 export default function TestPage() {
   const router = useRouter();
@@ -43,7 +38,16 @@ export default function TestPage() {
     setLoading(true);
     // Simulate a bit of processing delay for UX
     await new Promise(r => setTimeout(r, 1000));
-    const result = await runPrediction(params);
+    
+    // Ensure no NaNs are passed
+    const cleanParams = { ...params };
+    for (const key of Object.keys(cleanParams) as (keyof WaterParams)[]) {
+        if (Number.isNaN(cleanParams[key])) {
+            cleanParams[key] = 0;
+        }
+    }
+
+    const result = await runPrediction(cleanParams);
     setLastResult(result);
     router.push('/prediction');
   };
@@ -91,64 +95,71 @@ export default function TestPage() {
           }}>
             {PARAMS.map(p => {
               const val = params[p.key];
-              const pct = ((val - p.min) / (p.max - p.min)) * 100;
 
               return (
                 <div key={p.key}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
                     <label style={{
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: 600,
                       color: 'var(--text-secondary)',
                       fontFamily: 'var(--font-display)',
                       letterSpacing: '0.02em',
                     }}>
                       {p.label}
-                      {p.unit && (
-                        <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: 4, fontSize: 11 }}>
-                          ({p.unit})
-                        </span>
-                      )}
                     </label>
-                    <span style={{
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: '#2563eb',
-                      fontFamily: 'var(--font-mono)',
-                      minWidth: 60,
-                      textAlign: 'right',
-                    }}>
-                      {fmt(p.key, val)}
+                    <span style={{ color: '#6b7280', fontSize: 11, fontWeight: 500 }}>
+                      WHO: {p.who} {p.unit}
                     </span>
                   </div>
                   <div style={{ position: 'relative', marginBottom: 6 }}>
-                    {/* Filled track */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: 0,
-                      width: `${pct}%`,
-                      height: 4,
-                      background: 'linear-gradient(90deg, #1d4ed8, #0ea5e9)',
-                      borderRadius: 2,
-                      transform: 'translateY(-50%)',
-                      pointerEvents: 'none',
-                      zIndex: 1,
-                    }} />
                     <input
-                      type="range"
+                      type="number"
                       min={p.min}
                       max={p.max}
                       step={p.step}
-                      value={val}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => set(p.key, parseFloat(e.target.value))}
-                      style={{ position: 'relative', zIndex: 2, background: 'transparent' }}
+                      value={Number.isNaN(val) ? '' : val}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const newVal = e.target.value === '' ? NaN : parseFloat(e.target.value);
+                        set(p.key, newVal);
+                      }}
+                      placeholder={`e.g. ${p.min}`}
+                      style={{ 
+                        width: '100%', 
+                        padding: '12px 16px', 
+                        borderRadius: '10px', 
+                        border: '1px solid #e2e8f0', 
+                        fontSize: '15px', 
+                        fontFamily: 'var(--font-mono)', 
+                        color: 'var(--text-primary)',
+                        background: '#f8fafc',
+                        outline: 'none',
+                        transition: 'all 0.2s ease',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#3b82f6';
+                        e.target.style.background = '#ffffff';
+                        e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e2e8f0';
+                        e.target.style.background = '#f8fafc';
+                        e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.02)';
+                      }}
                     />
+                    {p.unit && (
+                      <div style={{ 
+                        position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', 
+                        color: '#94a3b8', fontSize: 13, pointerEvents: 'none' 
+                      }}>
+                        {p.unit}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#9ca3af' }}>
-                    <span>{p.min}</span>
-                    <span style={{ color: '#6b7280', fontWeight: 500 }}>WHO: {p.who}</span>
-                    <span>{p.max.toLocaleString()}</span>
+                  <div style={{ fontSize: 11, color: '#9ca3af', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Min: {p.min}</span>
+                    <span>Max: {p.max.toLocaleString()}</span>
                   </div>
                 </div>
               );
