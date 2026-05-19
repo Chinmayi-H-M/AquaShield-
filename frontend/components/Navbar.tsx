@@ -1,4 +1,4 @@
-
+user
 export default function Navbar() {
     const pathname = usePathname();
 
