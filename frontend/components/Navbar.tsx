@@ -1,4 +1,16 @@
-user
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const NAV_LINKS = [
+    { href: '/', label: 'Home' },
+    { href: '/test', label: 'Test Water' },
+    { href: '/prediction', label: 'Prediction' },
+    { href: '/explainability', label: 'Explainability' },
+    { href: '/dashboard', label: 'Dashboard' },
+];
+
 export default function Navbar() {
     const pathname = usePathname();
 
